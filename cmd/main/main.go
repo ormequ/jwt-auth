@@ -11,28 +11,38 @@ import (
 	"jwt-auth/internal/app"
 	"jwt-auth/internal/config"
 	"jwt-auth/internal/httpserver"
+	"jwt-auth/internal/logger"
 	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
+	"time"
 )
 
 func main() {
 	cfg := config.MustLoad()
 
-	log := setupLogger(cfg.Env)
+	eg, ctx := errgroup.WithContext(context.Background())
+	log := logger.Create(cfg.Env)
 	log.Info("starting app", slog.String("env", cfg.Env))
 
-	eg, ctx := errgroup.WithContext(context.Background())
-
 	conn, err := mongo.Connect(ctx, options.Client().ApplyURI(cfg.MongoConn))
+	if err == nil {
+		err = conn.Ping(ctx, nil)
+	}
 	if err != nil {
 		log.Error("cannot connect to database", slog.String("error", err.Error()))
 		os.Exit(1)
 	}
-	a := app.New(repo.New(conn.Database(cfg.MongoDB)), bcrypt.New(cfg.BCryptCost))
+	a := app.New(
+		repo.New(conn.Database(cfg.MongoDB)),
+		bcrypt.New(cfg.BCryptCost),
+		cfg.AccessSecret,
+		time.Duration(cfg.AccessExpires)*time.Second,
+		time.Duration(cfg.RefreshExpires)*time.Second,
+	)
 
-	srv := httpserver.New(cfg.HTTPAddr, cfg.Env, a)
+	srv := httpserver.New(log, cfg.HTTPAddr, cfg.Env, a)
 	sigQuit := make(chan os.Signal, 1)
 	signal.Ignore(syscall.SIGHUP, syscall.SIGPIPE)
 	signal.Notify(sigQuit, syscall.SIGINT, syscall.SIGTERM)
@@ -53,23 +63,4 @@ func main() {
 		log.Error("caught error for graceful shutdown", slog.String("error", err.Error()))
 	}
 	log.Info("server has been shutdown successfully")
-}
-
-func setupLogger(env string) *slog.Logger {
-	var log *slog.Logger
-	switch env {
-	case config.EnvRelease:
-		log = slog.New(
-			slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
-				Level: slog.LevelInfo,
-			}),
-		)
-	case config.EnvDebug:
-		log = slog.New(
-			slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{
-				Level: slog.LevelDebug,
-			}),
-		)
-	}
-	return log
 }

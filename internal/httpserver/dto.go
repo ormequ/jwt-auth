@@ -2,15 +2,11 @@ package httpserver
 
 import (
 	"github.com/gin-gonic/gin"
-	"jwt-auth/internal/app"
+	"jwt-auth/internal/entities"
 )
 
 type refreshRequest struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
-}
-
-type generateRequest struct {
-	ID string `json:"id" binding:"required"`
+	RefreshToken string `json:"token" binding:"required"`
 }
 
 type JWTPairResponse struct {
@@ -18,7 +14,7 @@ type JWTPairResponse struct {
 	AccessToken  string `json:"access_token" binding:"required"`
 }
 
-func jwtPairToResponse(pair app.JWTPair) JWTPairResponse {
+func jwtPairToResponse(pair entities.JWTPair) JWTPairResponse {
 	return JWTPairResponse{
 		RefreshToken: pair.Refresh,
 		AccessToken:  pair.Access,
@@ -28,11 +24,11 @@ func jwtPairToResponse(pair app.JWTPair) JWTPairResponse {
 func errorResponse(err error) gin.H {
 	return gin.H{
 		"data":  nil,
-		"error": err,
+		"error": err.Error(),
 	}
 }
 
-func jwtSuccessResponse(pair app.JWTPair) gin.H {
+func jwtSuccessResponse(pair entities.JWTPair) gin.H {
 	return gin.H{
 		"data":  jwtPairToResponse(pair),
 		"error": nil,

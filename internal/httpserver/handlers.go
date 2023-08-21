@@ -1,27 +1,21 @@
 package httpserver
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
 	"jwt-auth/internal/app"
 	"net/http"
 )
 
-var (
-	ErrEmptyID      = errors.New("user id is required")
-	ErrEmptyRefresh = errors.New("refresh token is required")
-)
-
 func generatePair(a app.App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req generateRequest
-		if err := c.BindJSON(req); err != nil {
+		userID := c.Param("user_id")
+		if userID == "" {
 			c.JSON(http.StatusBadRequest, errorResponse(ErrEmptyID))
 			return
 		}
-		pair, err := a.GeneratePair(c, req.ID)
+		pair, err := a.GeneratePair(c, userID)
 		if err != nil {
-			c.JSON(hideError(err))
+			handleError(c, err)
 			return
 		}
 		c.JSON(http.StatusOK, jwtSuccessResponse(pair))
@@ -30,14 +24,19 @@ func generatePair(a app.App) gin.HandlerFunc {
 
 func refreshPair(a app.App) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		userID := c.Param("user_id")
+		if userID == "" {
+			c.JSON(http.StatusBadRequest, errorResponse(ErrEmptyID))
+			return
+		}
 		var req refreshRequest
-		if err := c.BindJSON(req); err != nil {
+		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, errorResponse(ErrEmptyRefresh))
 			return
 		}
-		pair, err := a.Refresh(c, req.RefreshToken)
+		pair, err := a.Refresh(c, userID, req.RefreshToken)
 		if err != nil {
-			c.JSON(hideError(err))
+			handleError(c, err)
 			return
 		}
 		c.JSON(http.StatusOK, jwtSuccessResponse(pair))

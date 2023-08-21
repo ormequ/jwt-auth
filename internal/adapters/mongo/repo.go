@@ -5,39 +5,48 @@ import (
 	"errors"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"jwt-auth/internal/app"
+	"jwt-auth/internal/entities"
 )
 
 type Repo struct {
 	tokens *mongo.Collection
 }
 
-func (r Repo) CreateOrUpdate(ctx context.Context, id string, hash string) error {
+func (r Repo) CreateOrUpdate(ctx context.Context, token entities.RefreshToken) error {
 	const fn = "mongo.CreateOrUpdate"
-	update := bson.D{{"$set", bson.D{{"token", hash}}}}
+	exp := primitive.NewDateTimeFromTime(token.Expires)
+	update := bson.D{{"$set", bson.D{{"token", token.Token}, {"expires", exp}}}}
 	opts := options.Update().SetUpsert(true)
-	_, err := r.tokens.UpdateByID(ctx, id, update, opts)
-	return fmt.Errorf("fn=%s err='%v'", fn, err)
+	_, err := r.tokens.UpdateByID(ctx, token.UserID, update, opts)
+	if err != nil {
+		return fmt.Errorf("fn=%s err='%v'", fn, err)
+	}
+	return nil
 }
 
-type user struct {
-	ID string `json:"_id" bson:"_id"`
+type token struct {
+	Hash    string             `json:"token" bson:"token"`
+	Expires primitive.DateTime `json:"expires" bson:"expires"`
 }
 
-func (r Repo) GetUserID(ctx context.Context, token string) (string, error) {
+func (r Repo) GetToken(ctx context.Context, userID string) (entities.RefreshToken, error) {
 	const fn = "mongo.GetToken"
-	res := r.tokens.FindOne(ctx, bson.M{"token": token})
+	res := r.tokens.FindOne(ctx, bson.M{"_id": userID})
 	if errors.Is(res.Err(), mongo.ErrNoDocuments) {
-		return "", app.ErrNotFound
+		return entities.RefreshToken{}, app.ErrNotFound
 	}
 	if err := res.Err(); err != nil {
-		return "", fmt.Errorf("fn=%s err='%v'", fn, err)
+		return entities.RefreshToken{}, fmt.Errorf("fn=%s err='%v'", fn, err)
 	}
-	u := user{}
-	err := res.Decode(u)
-	return u.ID, fmt.Errorf("fn=%s err='%v'", fn, err)
+	tok := token{}
+	if err := res.Decode(&tok); err != nil {
+		return entities.RefreshToken{}, fmt.Errorf("fn=%s err='%v'", fn, err)
+	}
+	return entities.NewRefresh(userID, tok.Hash, tok.Expires.Time()), nil
 }
 
 func New(db *mongo.Database) Repo {

@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  mongo:
+    image: mongo:7.0.0
+    ports:
+      - '27027:27017'
+    volumes:
+      - mongodata:/data/db
+    networks:
+      - default
+  app:
+    build: .
+    env_file: config.env
+    depends_on:
+      - mongo
+    links:
+      - mongo
+    ports:
+      - "8888:8888"
+
+networks:
+  default:
+
+volumes:
+  mongodata:

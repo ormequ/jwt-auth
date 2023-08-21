@@ -13,11 +13,14 @@ const (
 )
 
 type Config struct {
-	Env        string `env:"ENV" env-default:"release"`
-	MongoConn  string `env:"MONGO_CONN" env-required:"true"`
-	MongoDB    string `env:"MONGO_DB" env-required:"true"`
-	HTTPAddr   string `env:"HTTP_ADDR" env-default:":8888"`
-	BCryptCost int    `env:"BCRYPT_COST" env-default:"10"`
+	Env            string `env:"ENV" env-default:"release"`
+	MongoConn      string `env:"MONGO_CONN" env-required:"true"`
+	MongoDB        string `env:"MONGO_DB" env-required:"true"`
+	HTTPAddr       string `env:"HTTP_ADDR" env-default:":8888"`
+	BCryptCost     int    `env:"BCRYPT_COST" env-default:"10"`
+	AccessSecret   string `env:"ACCESS_SECRET_KEY" env-required:"true"`
+	AccessExpires  int    `env:"ACCESS_EXPIRES" env-default:"300"`
+	RefreshExpires int    `env:"REFRESH_EXPIRES" env-default:"2592000"` // default - 30 days
 }
 
 func MustLoad() Config {

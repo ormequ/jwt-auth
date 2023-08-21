@@ -6,24 +6,34 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"jwt-auth/internal/app"
-	"log"
+	"jwt-auth/internal/logger"
+	"log/slog"
 	"net/http"
 	"time"
 )
 
 type Server struct {
 	http.Server
+	log *slog.Logger
 }
 
-func New(addr string, mode string, a app.App) *Server {
+func New(log *slog.Logger, addr string, mode string, a app.App) *Server {
 	gin.SetMode(mode)
 
-	r := gin.Default()
-	s := Server{http.Server{
-		Addr:    addr,
-		Handler: r,
-	}}
-	SetRoutes(r, a)
+	r := gin.New()
+	r.Use(gin.Recovery())
+	logMW := logger.Middleware(log)
+	r.Use(func(c *gin.Context) {
+		logMW(c.Request, c.Set, c.Next)
+	})
+	s := Server{
+		Server: http.Server{
+			Addr:    addr,
+			Handler: r,
+		},
+		log: log,
+	}
+	SetRoutes(r.Group("/api"), a)
 	return &s
 }
 
@@ -33,7 +43,7 @@ func (s *Server) Listen(ctx context.Context) error {
 		shCtx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 		defer cancel()
 		if err := s.Shutdown(shCtx); err != nil {
-			log.Printf("can't close http server listening on %s: %s", s.Addr, err.Error())
+			s.log.Error("can't close http server listening", slog.String("addr", s.Addr), slog.String("error", err.Error()))
 		}
 		close(errCh)
 	}()
