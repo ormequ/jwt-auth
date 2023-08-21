@@ -31,7 +31,6 @@ type App struct {
 	accessSecret   []byte
 	accessExpires  time.Duration
 	refreshExpires time.Duration
-	log            *slog.Logger
 }
 
 func randomString() string {
