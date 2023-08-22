@@ -8,7 +8,7 @@ import (
 
 func generatePair(a app.App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req generateRequest
+		var req GenerateRequest
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, errorResponse(ErrEmptyRefresh))
 			return
@@ -24,7 +24,7 @@ func generatePair(a app.App) gin.HandlerFunc {
 
 func refreshPair(a app.App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		var req refreshRequest
+		var req RefreshRequest
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, errorResponse(ErrEmptyRefresh))
 			return

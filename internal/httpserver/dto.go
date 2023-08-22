@@ -5,23 +5,23 @@ import (
 	"jwt-auth/internal/entities"
 )
 
-type refreshRequest struct {
+type RefreshRequest struct {
 	RefreshToken string `json:"token" binding:"required"`
 }
 
-type generateRequest struct {
+type GenerateRequest struct {
 	UserID string `json:"user_id" binding:"required"`
 }
 
 type JWTPairResponse struct {
-	RefreshToken string `json:"refresh_token" binding:"required"`
-	AccessToken  string `json:"access_token" binding:"required"`
+	Refresh string `json:"refresh_token" binding:"required"`
+	Access  string `json:"access_token" binding:"required"`
 }
 
 func jwtPairToResponse(pair entities.JWTPair) JWTPairResponse {
 	return JWTPairResponse{
-		RefreshToken: pair.Refresh,
-		AccessToken:  pair.Access,
+		Refresh: pair.Refresh,
+		Access:  pair.Access,
 	}
 }
 

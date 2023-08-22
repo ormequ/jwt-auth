@@ -8,6 +8,7 @@ import (
 	"jwt-auth/internal/entities"
 	"jwt-auth/internal/logger"
 	"log/slog"
+	"regexp"
 	"strings"
 	"time"
 )
@@ -37,6 +38,12 @@ func getSignature(token string) string {
 	return strings.Split(token, ".")[2]
 }
 
+func isValidUUID(input string) bool {
+	uuidPattern := `^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$`
+	match, _ := regexp.MatchString(uuidPattern, input)
+	return match
+}
+
 func (a App) GeneratePair(ctx context.Context, userID string) (entities.JWTPair, error) {
 	const fn = "app.GeneratePair"
 
@@ -44,6 +51,12 @@ func (a App) GeneratePair(ctx context.Context, userID string) (entities.JWTPair,
 		slog.String("fn", fn),
 		slog.String("userID", userID),
 	)
+
+	log.Debug("validating user ID")
+	valid := isValidUUID(userID)
+	if !valid {
+		return entities.JWTPair{}, ErrInvalidUserID
+	}
 
 	log.Debug("generating refresh token")
 	now := time.Now().UTC()

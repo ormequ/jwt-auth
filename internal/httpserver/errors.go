@@ -11,7 +11,6 @@ import (
 
 var (
 	ErrInternal     = errors.New("internal server error")
-	ErrEmptyID      = errors.New("user id is required")
 	ErrEmptyRefresh = errors.New("refresh token is required")
 )
 
@@ -21,6 +20,9 @@ func hideError(err error) (int, error) {
 	}
 	if errors.Is(err, app.ErrPermissionDenied) || errors.Is(err, app.ErrExpired) {
 		return http.StatusForbidden, err
+	}
+	if errors.Is(err, app.ErrInvalidUserID) {
+		return http.StatusBadRequest, err
 	}
 	return http.StatusInternalServerError, ErrInternal
 }
