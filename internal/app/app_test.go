@@ -14,6 +14,9 @@ import (
 	"time"
 )
 
+const userIDNotFound = "6ba7b810-9dad-11d1-80b4-00c04fd430c8"
+const userIDDefault = "f47ac10b-58cc-4372-a567-0e02b2c3d479"
+
 var accessSecret = []byte("test-access-secret")
 var refreshSecret = []byte("test-refresh-secret")
 
@@ -55,7 +58,7 @@ func repoGetTokenByID(t *testing.T, refreshToken string) Repo {
 	r.
 		On("GetTokenByID", mock.Anything, mock.AnythingOfType("string")).
 		Return(func(_ context.Context, userID string) (string, error) {
-			if userID == "not-found" {
+			if userID == userIDNotFound {
 				return "", ErrNotFound
 			}
 			return refreshToken, nil
@@ -117,13 +120,13 @@ func TestApp_GeneratePair(t *testing.T) {
 			},
 			args: args{
 				ctx:    ctx,
-				userID: "test-id",
+				userID: userIDDefault,
 			},
 			want: func(t assert.TestingT, i interface{}, i2 ...interface{}) bool {
 				p, _ := i.(entities.JWTPair)
 				claims, err := decodeToken(accessSecret, p.Access)
 				return assert.NoError(t, err) &&
-					assert.Equal(t, "test-id", claims["usr"].(string)) &&
+					assert.Equal(t, userIDDefault, claims["usr"].(string)) &&
 					assert.Equal(t, getSignature(p.Refresh), claims["ref"].(string))
 			},
 			wantErr: nil,
@@ -140,7 +143,7 @@ func TestApp_GeneratePair(t *testing.T) {
 			},
 			args: args{
 				ctx:    ctx,
-				userID: "test-id",
+				userID: userIDDefault,
 			},
 			want: func(t assert.TestingT, i interface{}, i2 ...interface{}) bool {
 				p, _ := i.(entities.JWTPair)
@@ -148,6 +151,25 @@ func TestApp_GeneratePair(t *testing.T) {
 				return assert.ErrorIs(t, err, jwt.ErrTokenExpired)
 			},
 			wantErr: nil,
+		},
+		{
+			name: "incorrect user id",
+			fields: fields{
+				repo:           nil,
+				hasher:         nil,
+				accessSecret:   accessSecret,
+				refreshSecret:  refreshSecret,
+				accessExpires:  time.Minute,
+				refreshExpires: time.Minute,
+			},
+			args: args{
+				ctx:    ctx,
+				userID: "non-uuid-string",
+			},
+			want: nil,
+			wantErr: func(t assert.TestingT, err error, i ...interface{}) bool {
+				return assert.ErrorIs(t, err, ErrInvalidUserID)
+			},
 		},
 	}
 	for _, tt := range tests {
@@ -166,7 +188,9 @@ func TestApp_GeneratePair(t *testing.T) {
 			} else if tt.wantErr == nil {
 				require.NoError(t, err)
 			}
-			require.True(t, tt.want(t, got, fmt.Sprintf("GeneratePair(%v, %v)", tt.args.ctx, tt.args.userID)))
+			if tt.want != nil {
+				require.True(t, tt.want(t, got, fmt.Sprintf("GeneratePair(%v, %v)", tt.args.ctx, tt.args.userID)))
+			}
 		})
 	}
 }
@@ -193,9 +217,9 @@ func TestApp_Refresh(t *testing.T) {
 		ctx     context.Context
 		refresh string
 	}
-	refCorrect := generateRefresh("correct-user", time.Now().UTC().Add(time.Minute))
-	refNotFound := generateRefresh("not-found", time.Now().UTC().Add(time.Minute))
-	refExpired := generateRefresh("expired", time.Now().UTC().Add(-time.Minute))
+	refCorrect := generateRefresh(userIDDefault, time.Now().UTC().Add(time.Minute))
+	refNotFound := generateRefresh(userIDNotFound, time.Now().UTC().Add(time.Minute))
+	refExpired := generateRefresh(userIDDefault, time.Now().UTC().Add(-time.Minute))
 	fmt.Println(refExpired)
 	tests := []struct {
 		name    string
@@ -222,7 +246,7 @@ func TestApp_Refresh(t *testing.T) {
 				p, _ := i.(entities.JWTPair)
 				claims, err := decodeToken(accessSecret, p.Access)
 				return assert.NoError(t, err) &&
-					assert.Equal(t, "correct-user", claims["usr"].(string)) &&
+					assert.Equal(t, userIDDefault, claims["usr"].(string)) &&
 					assert.Equal(t, getSignature(p.Refresh), claims["ref"].(string))
 			},
 			wantErr: nil,

@@ -24,11 +24,11 @@ func TestTokenInformation(t *testing.T) {
 
 	// Пустая строка
 	_, err = client.generate("")
-	require.ErrorIs(t, ErrBadRequest, err)
+	require.ErrorIs(t, err, ErrBadRequest)
 
 	// Non-UUID
 	_, err = client.generate("замена__-на__-русс-кие_-символы_____")
-	require.ErrorIs(t, ErrBadRequest, err)
+	require.ErrorIs(t, err, ErrBadRequest)
 
 	// Повторная генерация
 	time.Sleep(time.Second)
