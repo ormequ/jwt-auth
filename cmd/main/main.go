@@ -38,6 +38,7 @@ func main() {
 		repo.New(conn.Database(cfg.MongoDB)),
 		bcrypt.New(cfg.BCryptCost),
 		cfg.AccessSecret,
+		cfg.RefreshSecret,
 		time.Duration(cfg.AccessExpires)*time.Second,
 		time.Duration(cfg.RefreshExpires)*time.Second,
 	)

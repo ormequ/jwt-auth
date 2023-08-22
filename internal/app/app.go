@@ -2,21 +2,20 @@ package app
 
 import (
 	"context"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt/v5"
 	"jwt-auth/internal/entities"
 	"jwt-auth/internal/logger"
 	"log/slog"
-	"math/rand"
+	"strings"
 	"time"
 )
 
 //go:generate go run github.com/vektra/mockery/v2@v2.32.4 --name=Repo
 type Repo interface {
-	CreateOrUpdate(ctx context.Context, token entities.RefreshToken) error
-	GetToken(ctx context.Context, userID string) (entities.RefreshToken, error)
+	CreateOrUpdate(ctx context.Context, userID string, hash string) error
+	GetTokenByID(ctx context.Context, userID string) (string, error)
 }
 
 //go:generate go run github.com/vektra/mockery/v2@v2.32.4 --name=Hasher
@@ -29,111 +28,107 @@ type App struct {
 	repo           Repo
 	hasher         Hasher
 	accessSecret   []byte
+	refreshSecret  []byte
 	accessExpires  time.Duration
 	refreshExpires time.Duration
 }
 
-func randomString() string {
-	const sym = "1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz()[]{}+-*/=_.,:;!?@#$%^&"
-	const minLen = 10
-	const maxLen = 72
-
-	res := make([]byte, rand.Intn(maxLen-minLen)+minLen)
-	symB := []byte(sym)
-	for i := range res {
-		res[i] = symB[rand.Intn(len(sym))]
-	}
-	return string(res)
+func getSignature(token string) string {
+	return strings.Split(token, ".")[2]
 }
 
-func (a App) generateRefresh(ctx context.Context) (token string, hash string, err error) {
-	for !errors.Is(err, ErrNotFound) {
-		token = randomString()
-		hash, err = a.hasher.Generate(ctx, token)
-		if err != nil {
-			return
-		}
-		_, err = a.repo.GetToken(ctx, hash)
-		if err != nil && !errors.Is(err, ErrNotFound) {
-			return
-		}
-	}
-	err = nil
-	return
-}
-
-func (a App) GeneratePair(ctx context.Context, id string) (entities.JWTPair, error) {
+func (a App) GeneratePair(ctx context.Context, userID string) (entities.JWTPair, error) {
 	const fn = "app.GeneratePair"
 
 	log := logger.Log(ctx).With(
 		slog.String("fn", fn),
-		slog.String("id", id),
+		slog.String("userID", userID),
 	)
 
 	log.Debug("generating refresh token")
-	rawRefresh, hashRefresh, err := a.generateRefresh(ctx)
-	log.Debug("generated", slog.String("token", rawRefresh), slog.String("hash", hashRefresh))
-
-	if err != nil {
-		return entities.JWTPair{}, err
-	}
-	b64Refresh := base64.StdEncoding.EncodeToString([]byte(rawRefresh))
 	now := time.Now().UTC()
-	refresh := entities.NewRefresh(id, hashRefresh, now.Add(a.refreshExpires))
+	refresh := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"usr": userID,
+		"exp": now.Add(a.refreshExpires).Unix(),
+	})
+	strRefresh, err := refresh.SignedString(a.refreshSecret)
+	if err != nil {
+		return entities.JWTPair{}, fmt.Errorf("fn=%s err='%v'", fn, err)
+	}
+	signRefresh := getSignature(strRefresh)
+	hashRefresh, err := a.hasher.Generate(ctx, signRefresh)
+	if err != nil {
+		return entities.JWTPair{}, fmt.Errorf("fn=%s err='%v'", fn, err)
+	}
+	log.Debug("generated", slog.String("token", strRefresh), slog.String("hash", hashRefresh))
 
-	log.Debug("creating or updating refresh token")
-	err = a.repo.CreateOrUpdate(ctx, refresh)
+	err = a.repo.CreateOrUpdate(ctx, userID, hashRefresh)
 	if err != nil {
 		return entities.JWTPair{}, err
 	}
+
+	log.Debug("generating access token")
 	access := jwt.NewWithClaims(jwt.SigningMethodHS512, jwt.MapClaims{
-		"ref": b64Refresh,
-		"usr": id,
-		"exp": now.Add(a.accessExpires),
+		"ref": signRefresh,
+		"usr": userID,
+		"exp": now.Add(a.accessExpires).Unix(),
 	})
-	log.Debug("signing access token")
 	strAccess, err := access.SignedString(a.accessSecret)
 	if err != nil {
 		return entities.JWTPair{}, fmt.Errorf("fn=%s err='%v'", fn, err)
 	}
 
-	return entities.NewPair(strAccess, b64Refresh), nil
+	return entities.NewPair(strAccess, strRefresh), nil
 }
 
-func (a App) Refresh(ctx context.Context, userID string, b64Refresh string) (entities.JWTPair, error) {
+func decodeToken(secret []byte, tokenString string) (jwt.MapClaims, error) {
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
+			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
+		}
+
+		return secret, nil
+	})
+
+	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
+		return claims, err
+	}
+	return nil, err
+}
+
+func (a App) Refresh(ctx context.Context, refresh string) (entities.JWTPair, error) {
 	const fn = "app.Refresh"
 
 	log := logger.Log(ctx).With(slog.String("fn", fn))
-
-	log.Debug("decoding", slog.String("encoded", b64Refresh))
-	rawRefresh, err := base64.StdEncoding.DecodeString(b64Refresh)
+	log.Debug("decoding", slog.String("token", refresh))
+	claims, err := decodeToken(a.refreshSecret, refresh)
+	if errors.Is(err, jwt.ErrTokenExpired) {
+		return entities.JWTPair{}, ErrExpired
+	}
+	userID := claims["usr"].(string)
 	if err != nil {
 		return entities.JWTPair{}, fmt.Errorf("fn=%s err='%v'", fn, err)
 	}
 
-	log = logger.Log(ctx).With(slog.String("token", string(rawRefresh)))
-	log.Debug("getting token")
-	refresh, err := a.repo.GetToken(ctx, userID)
+	hash, err := a.repo.GetTokenByID(ctx, userID)
 	if err != nil {
 		return entities.JWTPair{}, err
 	}
 	log.Debug("comparing")
-	err = a.hasher.Compare(ctx, refresh.Token, string(rawRefresh))
+	err = a.hasher.Compare(ctx, hash, getSignature(refresh))
 	if err != nil {
 		return entities.JWTPair{}, err
 	}
-	if refresh.Expires.Before(time.Now().UTC()) {
-		return entities.JWTPair{}, ErrExpired
-	}
 	log.Debug("generating new pair")
-	return a.GeneratePair(ctx, refresh.UserID)
+	return a.GeneratePair(ctx, userID)
 }
 
-func New(repo Repo, hasher Hasher, accessSecret string, accessExpires time.Duration, refreshExpires time.Duration) App {
+func New(repo Repo, hasher Hasher, accessSecret string, refreshSecret string, accessExpires time.Duration, refreshExpires time.Duration) App {
 	return App{
 		repo:           repo,
 		hasher:         hasher,
 		accessSecret:   []byte(accessSecret),
+		refreshSecret:  []byte(refreshSecret),
 		accessExpires:  accessExpires,
 		refreshExpires: refreshExpires,
 	}

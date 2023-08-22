@@ -12,7 +12,7 @@ func SetRoutes(r gin.IRouter, a app.App) {
 	})
 
 	// Метод POST, т.к. запрос предполагает возможность добавления в БД запись
-	r.POST("/tokens/:user_id", generatePair(a))
+	r.POST("/generate", generatePair(a))
 	// Метод PUT, т.к. запрос изменяет только существующие записи
-	r.PUT("/tokens/:user_id", refreshPair(a))
+	r.PUT("/refresh", refreshPair(a))
 }

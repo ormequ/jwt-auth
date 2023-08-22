@@ -9,6 +9,10 @@ type refreshRequest struct {
 	RefreshToken string `json:"token" binding:"required"`
 }
 
+type generateRequest struct {
+	UserID string `json:"user_id" binding:"required"`
+}
+
 type JWTPairResponse struct {
 	RefreshToken string `json:"refresh_token" binding:"required"`
 	AccessToken  string `json:"access_token" binding:"required"`

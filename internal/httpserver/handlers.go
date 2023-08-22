@@ -8,12 +8,12 @@ import (
 
 func generatePair(a app.App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID := c.Param("user_id")
-		if userID == "" {
-			c.JSON(http.StatusBadRequest, errorResponse(ErrEmptyID))
+		var req generateRequest
+		if err := c.BindJSON(&req); err != nil {
+			c.JSON(http.StatusBadRequest, errorResponse(ErrEmptyRefresh))
 			return
 		}
-		pair, err := a.GeneratePair(c, userID)
+		pair, err := a.GeneratePair(c, req.UserID)
 		if err != nil {
 			handleError(c, err)
 			return
@@ -24,17 +24,12 @@ func generatePair(a app.App) gin.HandlerFunc {
 
 func refreshPair(a app.App) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		userID := c.Param("user_id")
-		if userID == "" {
-			c.JSON(http.StatusBadRequest, errorResponse(ErrEmptyID))
-			return
-		}
 		var req refreshRequest
 		if err := c.BindJSON(&req); err != nil {
 			c.JSON(http.StatusBadRequest, errorResponse(ErrEmptyRefresh))
 			return
 		}
-		pair, err := a.Refresh(c, userID, req.RefreshToken)
+		pair, err := a.Refresh(c, req.RefreshToken)
 		if err != nil {
 			handleError(c, err)
 			return
