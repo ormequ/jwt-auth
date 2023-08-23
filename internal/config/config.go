@@ -19,7 +19,6 @@ type Config struct {
 	HTTPAddr       string `env:"HTTP_ADDR" env-default:":8888"`
 	BCryptCost     int    `env:"BCRYPT_COST" env-default:"10"`
 	AccessSecret   string `env:"ACCESS_SECRET_KEY" env-required:"true"`
-	RefreshSecret  string `env:"REFRESH_SECRET_KEY" env-required:"true"`
 	AccessExpires  int    `env:"ACCESS_EXPIRES" env-default:"300"`
 	RefreshExpires int    `env:"REFRESH_EXPIRES" env-default:"2592000"` // default - 30 days
 }

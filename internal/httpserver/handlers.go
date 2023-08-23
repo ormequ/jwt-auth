@@ -29,7 +29,7 @@ func refreshPair(a app.App) gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, errorResponse(ErrEmptyRefresh))
 			return
 		}
-		pair, err := a.Refresh(c, req.RefreshToken)
+		pair, err := a.Refresh(c, req.Access, req.Refresh)
 		if err != nil {
 			handleError(c, err)
 			return

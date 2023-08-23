@@ -21,7 +21,7 @@ func hideError(err error) (int, error) {
 	if errors.Is(err, app.ErrPermissionDenied) || errors.Is(err, app.ErrExpired) {
 		return http.StatusForbidden, err
 	}
-	if errors.Is(err, app.ErrInvalidUserID) {
+	if errors.Is(err, app.ErrInvalidUserID) || errors.Is(err, app.ErrIncorrectToken) {
 		return http.StatusBadRequest, err
 	}
 	return http.StatusInternalServerError, ErrInternal

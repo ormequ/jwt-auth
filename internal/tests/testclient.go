@@ -23,10 +23,7 @@ var (
 	ErrNotFound   = fmt.Errorf("not found")
 )
 
-const (
-	accessSecret  = "access-test-secret"
-	refreshSecret = "refresh-test-secret"
-)
+const accessSecret = "access-test-secret"
 
 var db *mongo.Client
 
@@ -35,7 +32,6 @@ func setupClient(accessExp time.Duration, refreshExp time.Duration) *testClient 
 		repo.New(db.Database("test")),
 		bcrypt.New(10),
 		accessSecret,
-		refreshSecret,
 		accessExp,
 		refreshExp,
 	)
@@ -110,9 +106,10 @@ func (tc *testClient) generate(userID string) (jwtPair, error) {
 	return response.Data, err
 }
 
-func (tc *testClient) refresh(token string) (jwtPair, error) {
+func (tc *testClient) refresh(access string, refresh string) (jwtPair, error) {
 	body := map[string]any{
-		"token": token,
+		"access":  access,
+		"refresh": refresh,
 	}
 	var response jwtPairResponse
 	err := tc.request(body, http.MethodPut, "refresh", &response)

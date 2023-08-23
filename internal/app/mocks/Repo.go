@@ -4,6 +4,7 @@ package mocks
 
 import (
 	context "context"
+	entities "jwt-auth/internal/entities"
 
 	mock "github.com/stretchr/testify/mock"
 )
@@ -13,13 +14,13 @@ type Repo struct {
 	mock.Mock
 }
 
-// CreateOrUpdate provides a mock function with given fields: ctx, userID, hash
-func (_m *Repo) CreateOrUpdate(ctx context.Context, userID string, hash string) error {
-	ret := _m.Called(ctx, userID, hash)
+// CreateOrUpdate provides a mock function with given fields: ctx, token
+func (_m *Repo) CreateOrUpdate(ctx context.Context, token entities.RefreshToken) error {
+	ret := _m.Called(ctx, token)
 
 	var r0 error
-	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
-		r0 = rf(ctx, userID, hash)
+	if rf, ok := ret.Get(0).(func(context.Context, entities.RefreshToken) error); ok {
+		r0 = rf(ctx, token)
 	} else {
 		r0 = ret.Error(0)
 	}
@@ -28,18 +29,18 @@ func (_m *Repo) CreateOrUpdate(ctx context.Context, userID string, hash string) 
 }
 
 // GetTokenByID provides a mock function with given fields: ctx, userID
-func (_m *Repo) GetTokenByID(ctx context.Context, userID string) (string, error) {
+func (_m *Repo) GetTokenByID(ctx context.Context, userID string) (entities.RefreshToken, error) {
 	ret := _m.Called(ctx, userID)
 
-	var r0 string
+	var r0 entities.RefreshToken
 	var r1 error
-	if rf, ok := ret.Get(0).(func(context.Context, string) (string, error)); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) (entities.RefreshToken, error)); ok {
 		return rf(ctx, userID)
 	}
-	if rf, ok := ret.Get(0).(func(context.Context, string) string); ok {
+	if rf, ok := ret.Get(0).(func(context.Context, string) entities.RefreshToken); ok {
 		r0 = rf(ctx, userID)
 	} else {
-		r0 = ret.Get(0).(string)
+		r0 = ret.Get(0).(entities.RefreshToken)
 	}
 
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {

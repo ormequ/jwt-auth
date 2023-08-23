@@ -38,7 +38,6 @@ func main() {
 		repo.New(conn.Database(cfg.MongoDB)),
 		bcrypt.New(cfg.BCryptCost),
 		cfg.AccessSecret,
-		cfg.RefreshSecret,
 		time.Duration(cfg.AccessExpires)*time.Second,
 		time.Duration(cfg.RefreshExpires)*time.Second,
 	)
@@ -62,6 +61,9 @@ func main() {
 	})
 	if err := eg.Wait(); err != nil {
 		log.Error("caught error for graceful shutdown", slog.String("error", err.Error()))
+	}
+	if err := conn.Disconnect(context.Background()); err != nil {
+		log.Error("error during disconnecting MongoDB", slog.String("error", err.Error()))
 	}
 	log.Info("server has been shutdown successfully")
 }

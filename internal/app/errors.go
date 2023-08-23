@@ -7,4 +7,5 @@ var (
 	ErrPermissionDenied = errors.New("permission denied")
 	ErrExpired          = errors.New("token has been expired")
 	ErrInvalidUserID    = errors.New("invalid user ID")
+	ErrIncorrectToken   = errors.New("incorrect token data")
 )

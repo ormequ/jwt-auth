@@ -6,7 +6,8 @@ import (
 )
 
 type RefreshRequest struct {
-	RefreshToken string `json:"token" binding:"required"`
+	Access  string `json:"access" binding:"required"`
+	Refresh string `json:"refresh" binding:"required"`
 }
 
 type GenerateRequest struct {
@@ -14,8 +15,8 @@ type GenerateRequest struct {
 }
 
 type JWTPairResponse struct {
-	Refresh string `json:"refresh_token" binding:"required"`
-	Access  string `json:"access_token" binding:"required"`
+	Access  string `json:"access" binding:"required"`
+	Refresh string `json:"refresh" binding:"required"`
 }
 
 func jwtPairToResponse(pair entities.JWTPair) JWTPairResponse {
