@@ -1,0 +1,258 @@
+{
+	"info": {
+		"_postman_id": "ee4b791c-8e39-4958-b223-c7d6dedaf985",
+		"name": "JWT",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23692137"
+	},
+	"item": [
+		{
+			"name": "Refresh",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"access\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTI3ODQ2MzIsInN1YiI6IjZCMjlGQzQwLUNBNDctMTA2Ny1CMzFELTAwREQwMTA2NjJEQSJ9.odOUYsOyvEdxcxCElO55qhfoPwAyNty4zd-vTxM3qxc8Z7j_D2CTC_BrazRYPH90IWzpA_aHOaylu5VlRA9sdA\",\r\n    \"refresh\": \"Y4NYA6v8vm+fXm77mNDY2usHbg==\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8888/api/refresh",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"refresh"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Refresh",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"access\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTMzOTM3OTYsInN1YiI6IjZCMjlGQzQwLUNBNDctMTA2Ny1CMzFELTAwREQwMTA2NjJEQSJ9.aAXQ3HIu_61kKg32h4jcSGI21MPtwXAPm6JdeQBvZgbPqnhMH2Q88R5heaS3VdagqlZCEQLFhLb-JF0v6IcSxg\",\r\n    \"refresh\": \"9Fous5prO7zDsVid2s6J+T4GRiaKa0Aae+8OTm+QshI=\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/refresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"refresh"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 30 Aug 2023 11:05:05 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "268"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"data\": {\n        \"access\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTMzOTM4MDUsInN1YiI6IjZCMjlGQzQwLUNBNDctMTA2Ny1CMzFELTAwREQwMTA2NjJEQSJ9.ADDK0V1PEEhc-PYI_HAqTDz3916u-k1_GBskaeUz1WrZlmu6Vif_Gup8buPLmXFTp23B4RZGLoGcOyLhtdBFbA\",\n        \"refresh\": \"J4eiCYEWGc0=\"\n    },\n    \"error\": null\n}"
+				},
+				{
+					"name": "Refresh",
+					"originalRequest": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"access\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTMzOTM2MDcsInN1YiI6IkEwRTdERkIxLUU1QTAtNEQ1OS04REVCLUIyQjZGRURERTk1RSJ9.ScG6dgkgmTKhNv-Nt-JNLnnSuUK1wNNPC2WRKylMOsXpIXPv1Cm5UiqLfnvh503QlxGZqMrjd58LngqmO-y1nA\",\r\n    \"refresh\": \"3knr/G7Yld8g\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/refresh",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"refresh"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 30 Aug 2023 11:05:17 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "348"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"data\": {\n        \"access\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTMzOTM4MTcsInN1YiI6IkEwRTdERkIxLUU1QTAtNEQ1OS04REVCLUIyQjZGRURERTk1RSJ9.cHJzDNdAE1LNhJiQulWfP0WUA-2-23bO4qNCC4bLANxORa3AR7ELd344sV1aPbMg32dDvFGH4MESElqbEINrHA\",\n        \"refresh\": \"JYy6RINR46amULFPSNR8bDa6JVWdIGk1UV/SePf35frXNEOXXLpzhRaClv9m1krh0pspqYaxgOMg52rvjphXTrU+4w==\"\n    },\n    \"error\": null\n}"
+				}
+			]
+		},
+		{
+			"name": "Generate",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"user_id\": \"A0E7DFB1-E5A0-4D59-8DEB-B2B6FEDDE95E\r\n\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8888/api/generate",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8888",
+					"path": [
+						"api",
+						"generate"
+					]
+				}
+			},
+			"response": [
+				{
+					"name": "Generate",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": \"6B29FC40-CA47-1067-B31D-00DD010662DA\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/generate",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"generate"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 30 Aug 2023 11:00:47 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "340"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"data\": {\n        \"access\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTMzOTM1NDcsInN1YiI6IjZCMjlGQzQwLUNBNDctMTA2Ny1CMzFELTAwREQwMTA2NjJEQSJ9.FChTqM6GrkzXTu8-FoNBSZ71e31uVvFJN03SvxFb5xPJa4OT2A4ZfCgvi5TgA17vjxoq2geD_n7fF2urv513ug\",\n        \"refresh\": \"uCs2soUuTroAzc9+moTe3fWxVKmm9FLSAXq8C9yElhLMrrYjeM3p3UIS+Gw/Z354UHcDRHrw7w121s1F7Ck=\"\n    },\n    \"error\": null\n}"
+				},
+				{
+					"name": "Generate",
+					"originalRequest": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"user_id\": \"A0E7DFB1-E5A0-4D59-8DEB-B2B6FEDDE95E\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8888/api/generate",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8888",
+							"path": [
+								"api",
+								"generate"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json; charset=utf-8"
+						},
+						{
+							"key": "Date",
+							"value": "Wed, 30 Aug 2023 11:01:47 GMT"
+						},
+						{
+							"key": "Content-Length",
+							"value": "268"
+						}
+					],
+					"cookie": [],
+					"body": "{\n    \"data\": {\n        \"access\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTMzOTM2MDcsInN1YiI6IkEwRTdERkIxLUU1QTAtNEQ1OS04REVCLUIyQjZGRURERTk1RSJ9.ScG6dgkgmTKhNv-Nt-JNLnnSuUK1wNNPC2WRKylMOsXpIXPv1Cm5UiqLfnvh503QlxGZqMrjd58LngqmO-y1nA\",\n        \"refresh\": \"3knr/G7Yld8g\"\n    },\n    \"error\": null\n}"
+				}
+			]
+		}
+	]
+}
