@@ -13,7 +13,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"access\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTI3ODQ2MzIsInN1YiI6IjZCMjlGQzQwLUNBNDctMTA2Ny1CMzFELTAwREQwMTA2NjJEQSJ9.odOUYsOyvEdxcxCElO55qhfoPwAyNty4zd-vTxM3qxc8Z7j_D2CTC_BrazRYPH90IWzpA_aHOaylu5VlRA9sdA\",\r\n    \"refresh\": \"Y4NYA6v8vm+fXm77mNDY2usHbg==\"\r\n}",
+					"raw": "{\r\n    \"access\": \"eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2OTMzOTM2MDcsInN1YiI6IkEwRTdERkIxLUU1QTAtNEQ1OS04REVCLUIyQjZGRURERTk1RSJ9.ScG6dgkgmTKhNv-Nt-JNLnnSuUK1wNNPC2WRKylMOsXpIXPv1Cm5UiqLfnvh503QlxGZqMrjd58LngqmO-y1nA\",\r\n    \"refresh\": \"3knr/G7Yld8g\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -137,7 +137,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"user_id\": \"A0E7DFB1-E5A0-4D59-8DEB-B2B6FEDDE95E\r\n\"\r\n}",
+					"raw": "{\r\n    \"user_id\": \"A0E7DFB1-E5A0-4D59-8DEB-B2B6FEDDE95E\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
